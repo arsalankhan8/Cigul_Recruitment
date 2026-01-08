@@ -5,7 +5,7 @@ import { api } from "../lib/api";
 
 function Column({ title, count, children, onDrop, onDragOver }) {
   return (
-    <div className="bg-white/35 backdrop-blur border border-white/60 rounded-[26px] p-6 min-h-[560px] shadow-[0_12px_35px_-22px_rgba(0,0,0,0.35)]">
+    <div className="min-w-[320px] lg:min-w-0 bg-white/35 backdrop-blur border border-white/60 rounded-[26px] p-6 min-h-[560px] shadow-[0_12px_35px_-22px_rgba(0,0,0,0.35)]">
       <div className="flex items-center gap-2">
         <div className="text-[11px] tracking-[0.22em] uppercase text-black/55 font-semibold">
           {title}
@@ -28,36 +28,65 @@ function Column({ title, count, children, onDrop, onDragOver }) {
   );
 }
 
-function CandidateCard({ a, onClick }) {
-  const initials = (a.fullName || "A").slice(0, 1).toUpperCase();
+function Pill({ children, tone = "orange" }) {
+  const tones = {
+    orange: "bg-orange-500/10 text-orange-700 border-orange-500/15",
+    purple: "bg-purple-500/10 text-purple-700 border-purple-500/15",
+    slate: "bg-black/[0.04] text-black/55 border-black/10",
+  };
 
   return (
-    <div
-      draggable
-      onDragStart={(e) => {
-        e.dataTransfer.setData("text/plain", a._id);
-      }}
-      className="bg-white/80 border border-white/70 rounded-[18px] p-4 shadow-[0_10px_25px_-18px_rgba(0,0,0,0.35)] cursor-grab active:cursor-grabbing"
-      onClick={onClick}
+    <span
+      className={`px-3 py-1 rounded-full text-[11px] font-semibold border ${tones[tone]}`}
     >
-      <div className="flex items-start justify-between">
-        <div className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center font-bold text-black/60">
-          {initials}
+      {children}
+    </span>
+  );
+}
+
+export function CandidateCard({ a, onClick }) {
+  const initials = (a.fullName || "A").slice(0, 1).toUpperCase();
+  const shortId = `#${(a._id || "").slice(-4).toUpperCase()}`;
+
+  return (
+    <button
+      type="button"
+      draggable
+      onDragStart={(e) => e.dataTransfer.setData("text/plain", a._id)}
+      onClick={onClick}
+      className="w-full text-left group relative overflow-hidden rounded-[22px] bg-white border border-black/5 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.35)] hover:shadow-[0_24px_55px_-30px_rgba(0,0,0,0.45)] transition-all active:scale-[0.99]"
+    >
+      {/* right red accent bar */}
+      <div className="absolute inset-y-0 right-0 w-[5px] bg-red-500/90" />
+
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center font-bold text-black/60">
+            {initials}
+          </div>
+
+          <div className="text-[11px] font-semibold text-black/35 tracking-[0.14em]">
+            {shortId}
+          </div>
         </div>
-        <div className="text-[11px] text-black/35 font-semibold">#{a._id.slice(-4).toUpperCase()}</div>
-      </div>
 
-      <div className="mt-3 font-semibold text-black/80">{a.fullName}</div>
+        <div className="mt-3 text-[15px] font-semibold text-black/85 leading-tight">
+          {a.fullName}
+        </div>
 
-      <div className="mt-3 flex gap-2">
-        <span className="px-2 py-1 rounded-md bg-green-500/10 text-green-700 text-[11px] font-semibold">
-          Exp: {a.expYears}
-        </span>
-        <span className="px-2 py-1 rounded-md bg-blue-500/10 text-blue-700 text-[11px] font-semibold">
-          {a.liveInKarachi === "Yes" ? "Karachi" : "Remote"}
-        </span>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {/* Experience */}
+          <Pill tone="orange">
+            Exp: {a.expYears ?? 0} yrs
+          </Pill>
+
+          {/* Source / Location */}
+          <Pill tone="purple">
+            {a.liveInKarachi === "Yes" ? "Karachi" : "Remote"}
+          </Pill>
+        </div>
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -104,7 +133,7 @@ export default function PipelineJob() {
 
   return (
     <Background>
-      <div className="max-w-6xl mx-auto px-8 py-10">
+      <div className="mx-auto max-w-7xl px-6 py-10">
         <button
           onClick={() => nav("/dashboard/pipeline")}
           className="text-[12px] font-semibold tracking-[0.2em] uppercase text-black/60 hover:text-black/80"
@@ -112,21 +141,24 @@ export default function PipelineJob() {
           ← Back to Dashboard
         </button>
 
-        <div className="mt-2 flex items-center justify-between">
-          <div>
-            <h1 className="text-[28px] font-bold text-black/85">{title}</h1>
+
+<div class="mt-2 flex flex-col items-start gap-2 lg:flex-row lg:items-center lg:justify-between lg:gap-5">
+  <div>
+           <h1 className="text-[28px] leading-tight font-bold text-black/85">{title}</h1>
             <div className="mt-1 text-sm text-black/55">{job?.workModel || ""}</div>
-          </div>
+  </div>
 
           <div className="px-4 py-2 rounded-lg bg-white/80 border border-white/70 text-[11px] tracking-[0.22em] uppercase text-black/55 font-semibold shadow-sm">
             Total Candidates: <span className="text-black/80 font-bold">{totalCandidates}</span>
           </div>
-        </div>
+</div>
+
 
         {loading ? (
           <div className="mt-8 text-sm text-black/50">Loading...</div>
         ) : (
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="mt-8 lg:grid lg:grid-cols-4 lg:gap-6 flex gap-6 overflow-x-auto lg:overflow-x-visible pb-2">
+
             <Column
               title="Applied"
               count={columns.applied.length}

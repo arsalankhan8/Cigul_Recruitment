@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import Job from "../models/Job.js";
 import JobApplication from "../models/JobApplication.js";
 import auth from "../middleware/auth.middleware.js";
+import fs from "fs";
+import path from "path";
 
 const router = express.Router();
 const requireAuth = auth;
@@ -12,6 +14,7 @@ const requireAuth = auth;
  * GET /api/pipeline
  * returns jobs + counts + "new applicants" (last 24h)
  */
+
 router.get("/", requireAuth, async (req, res) => {
   try {
     const jobs = await Job.find({ status: { $ne: "archived" } })
@@ -143,6 +146,7 @@ router.get("/applications/:appId", requireAuth, async (req, res) => {
  * PATCH /api/pipeline/applications/:appId/status
  * body: { status: "interview" | "hired" | "rejected" | "applied" }
  */
+
 router.patch("/applications/:appId/status", requireAuth, async (req, res) => {
   try {
     const { status } = req.body;
@@ -162,6 +166,32 @@ router.patch("/applications/:appId/status", requireAuth, async (req, res) => {
     res.json({ application });
   } catch (e) {
     res.status(500).json({ message: "Failed to update status" });
+  }
+});
+
+
+router.delete("/applications/:appId", requireAuth, async (req, res) => {
+  try {
+    const app = await JobApplication.findById(req.params.appId).lean();
+    if (!app) return res.status(404).json({ message: "Not found" });
+
+    // ✅ delete resume file from disk (if exists)
+    if (app.resume?.path) {
+      // app.resume.path example: "/uploads/resumes/xyz.pdf"
+      // Convert to absolute path safely
+      const absolutePath = path.join(process.cwd(), app.resume.path.replace(/^\//, ""));
+
+      if (fs.existsSync(absolutePath)) {
+        fs.unlinkSync(absolutePath);
+      }
+    }
+
+    await JobApplication.findByIdAndDelete(req.params.appId);
+
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "Failed to delete candidate" });
   }
 });
 

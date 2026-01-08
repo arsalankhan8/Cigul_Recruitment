@@ -1,15 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
+import bgImg from "../assets/careers-hero.png";
 
 const tones = {
   orange: {
     // soft UI
-    pillBg: "bg-[#ef5518]/10",
+    pillBg: "bg-[#fff7ed]",
     pillText: "text-[#ef5518]",
     pillRing: "ring-[#ef5518]/20",
 
-    tagBg: "bg-[#ef5518]/10",
+    tagBg: "bg-[#fff7ed]",
     tagText: "text-[#ef5518]",
     tagRing: "ring-[#ef5518]/20",
 
@@ -21,17 +22,16 @@ const tones = {
     shadowHover: "hover:shadow-[#ef5518]/15",
 
     // buttons
-    btnSolid:
-      "bg-[#ef5518] hover:bg-[#d94b16] focus-visible:outline-[#ef5518]",
+    btnSolid: "bg-[#ef5518] hover:bg-[#d94b16] focus-visible:outline-[#ef5518]",
   },
 
   indigo: {
     // soft UI
-    pillBg: "bg-[#4f46e5]/10",
+    pillBg: "bg-[#eef2ff]",
     pillText: "text-[#4f46e5]",
     pillRing: "ring-[#4f46e5]/20",
 
-    tagBg: "bg-[#4f46e5]/10",
+    tagBg: "bg-[#eef2ff]",
     tagText: "text-[#4f46e5]",
     tagRing: "ring-[#4f46e5]/20",
 
@@ -43,8 +43,7 @@ const tones = {
     shadowHover: "hover:shadow-[#4f46e5]/15",
 
     // buttons
-    btnSolid:
-      "bg-[#4f46e5] hover:bg-[#4338ca] focus-visible:outline-[#4f46e5]",
+    btnSolid: "bg-[#4f46e5] hover:bg-[#4338ca] focus-visible:outline-[#4f46e5]",
   },
 };
 
@@ -334,7 +333,7 @@ export default function Careers() {
 
         <div
           className={[
-            "absolute right-0 top-0 h-full w-[58%] bg-gradient-to-l to-transparent",
+            "absolute right-0 top-0 h-[100%] w-[38%] bg-gradient-to-l to-transparent",
             hasRemote
               ? "from-[#4f46e5]/15 via-[#4f46e5]/5"
               : "from-[#ef5518]/15 via-[#ef5518]/5",
@@ -344,13 +343,22 @@ export default function Careers() {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/[0.04] to-transparent" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-6 py-16">
+      <div
+        className="relative mx-auto max-w-7xl px-6 py-[20px] md:py-10
+"
+      >
         {/* Hero */}
         <div className="grid items-start gap-10 lg:grid-cols-2">
           <div className="pt-10">
-            <DotPill label="WE ARE HIRING" tone="orange" />
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-100 shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+              <span class="text-[11px] font-semibold tracking-[0.14em] text-gray-900 uppercase">
+                We Are Hiring
+              </span>
+            </div>
 
-            <h1 className="mt-6 text-[52px] font-semibold tracking-tight text-slate-900">
+            <h1 className="mt-2 leading-tight text-[50px] md:text-[70px] font-bold tracking-tight text-slate-900
+">
               Careers at Cigul
             </h1>
 
@@ -383,8 +391,14 @@ export default function Careers() {
           <div className="lg:justify-self-end">
             <div className="relative overflow-hidden rounded-[26px] shadow-[0_26px_70px_rgba(0,0,0,0.22)] ring-1 ring-black/10">
               <img
-                className="h-[260px] w-[620px] object-cover"
-                src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=1800&auto=format&fit=crop"
+               className="
+  h-[320px]
+  w-[620px]
+  lg:w-[620px]
+  max-lg:w-[-webkit-fill-available]
+  object-cover
+"
+                src={bgImg}
                 alt="Team meeting"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
@@ -414,13 +428,13 @@ export default function Careers() {
             </div>
           ) : (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {uiJobs.map((job) => (
-                  <JobCard
-                    key={job._id || job.title}
-                    jobUI={job}
-                    onApply={(j) => navigate(`/jobs/${j._id}`)}
-                  />
-                ))}
+              {uiJobs.map((job) => (
+                <JobCard
+                  key={job._id || job.title}
+                  jobUI={job}
+                  onApply={(j) => navigate(`/jobs/${j._id}`)}
+                />
+              ))}
             </div>
           )}
         </div>

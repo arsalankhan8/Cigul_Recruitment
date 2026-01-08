@@ -2,6 +2,46 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Background from "../components/ui/Background";
 import { api } from "../lib/api";
+import { Mail, MapPin, FileText, Download } from "lucide-react";
+
+function Pill({ children, tone = "green" }) {
+  const tones = {
+    green: "bg-emerald-50 text-emerald-700 border-emerald-100",
+    gray: "bg-black/[0.03] text-black/55 border-black/10",
+  };
+  return (
+    <span
+      className={`inline-flex items-center px-3 py-1 rounded-full border text-[11px] font-semibold tracking-[0.22em] uppercase ${tones[tone]}`}
+    >
+      {children}
+    </span>
+  );
+}
+
+function SectionTitle({ children }) {
+  return (
+    <div className="text-[11px] font-bold tracking-[0.22em] uppercase text-black/45">
+      {children}
+    </div>
+  );
+}
+
+function KVRow({ left, right, rightTone = "normal" }) {
+  return (
+    <div className="flex items-center justify-between rounded-2xl bg-black/[0.02] border border-black/[0.04] px-5 py-4">
+      <div className="text-[13px] font-semibold text-black/55">{left}</div>
+      <div
+        className={
+          rightTone === "success"
+            ? "text-[13px] font-semibold text-emerald-600"
+            : "text-[13px] font-semibold text-black/70"
+        }
+      >
+        {right}
+      </div>
+    </div>
+  );
+}
 
 function InfoStat({ label, value }) {
   return (
@@ -9,7 +49,9 @@ function InfoStat({ label, value }) {
       <div className="text-[11px] tracking-[0.22em] uppercase text-black/35 font-semibold">
         {label}
       </div>
-      <div className="mt-1 text-[16px] font-semibold text-black/75">{value}</div>
+      <div className="mt-1 text-[16px] font-semibold text-black/75">
+        {value}
+      </div>
     </div>
   );
 }
@@ -19,7 +61,8 @@ export default function CandidateDetail() {
   const nav = useNavigate();
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const btnBase =
+    "w-full text-[12px] font-bold tracking-wide p-[15px] rounded-[12px] transition-colors";
   async function load() {
     setLoading(true);
     try {
@@ -30,19 +73,46 @@ export default function CandidateDetail() {
     }
   }
 
+  const [deleting, setDeleting] = useState(false);
+
+async function deleteCandidate() {
+  const ok = window.confirm(
+    "Delete this candidate application and resume file permanently?"
+  );
+  if (!ok) return;
+
+  try {
+    setDeleting(true);
+    await api.delete(`/api/pipeline/applications/${appId}`);
+    nav(`/dashboard/pipeline/${jobId}`);
+  } catch (err) {
+    alert(err?.response?.data?.message || "Failed to delete candidate");
+  } finally {
+    setDeleting(false);
+  }
+}
+
+
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appId]);
 
-  async function setStatus(status) {
-    await api.patch(`/api/pipeline/applications/${appId}/status`, { status });
+  async function setStatus(nextStatus) {
+    await api.patch(`/api/pipeline/applications/${appId}/status`, {
+      status: nextStatus,
+    });
     await load();
     nav(`/dashboard/pipeline/${jobId}`);
   }
 
   const a = application;
-  const initials = useMemo(() => (a?.fullName || "A").slice(0, 1).toUpperCase(), [a]);
+  const status = a?.status; // ✅ moved here (after a exists)
+
+  const initials = useMemo(
+    () => (a?.fullName || "A").slice(0, 1).toUpperCase(),
+    [a]
+  );
 
   if (loading) {
     return (
@@ -64,104 +134,206 @@ export default function CandidateDetail() {
     );
   }
 
-  const resumeUrl = a.resume?.path ? `http://localhost:5000${a.resume.path}` : null;
+  const resumeUrl = a.resume?.path
+    ? `http://localhost:5000${a.resume.path}`
+    : null;
+  const hasPortfolio = !!a.portfolioUrl;
 
   return (
     <Background>
-      <div className="max-w-6xl mx-auto px-8 py-10">
-        <button
-          onClick={() => nav(`/dashboard/pipeline/${jobId}`)}
-          className="text-[12px] font-semibold tracking-[0.2em] uppercase text-black/60 hover:text-black/80"
-        >
-          ← Back to Pipeline
-        </button>
+      {/* light grid feel */}
+      <div className="min-h-screen bg-[linear-gradient(to_right,rgba(0,0,0,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.04)_1px,transparent_1px)] bg-[size:42px_42px]">
+        <div className="mx-auto max-w-7xl px-6 py-10">
+          <button
+            onClick={() => nav(`/dashboard/pipeline/${jobId}`)}
+            className="text-[12px] font-semibold tracking-[0.2em] uppercase text-black/60 hover:text-black/80"
+          >
+            ← Back to Pipeline
+          </button>
 
-        <div className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-7">
-          {/* left */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white/80 border border-white/70 rounded-[26px] p-7 shadow-[0_14px_40px_-26px_rgba(0,0,0,0.4)]">
-              <div className="flex items-start gap-5">
-                <div className="w-14 h-14 rounded-2xl bg-black/[0.04] flex items-center justify-center font-extrabold text-black/55">
-                  {initials}
+          <div className="mt-8 flex justify-between gap-10">
+            <div className="flex flex-col justify-between w-[70%] gap-10">
+              {/* TOP CARD */}
+
+              <div className="rounded-[28px] bg-white border border-black/[0.06] shadow-[0_12px_35px_-24px_rgba(0,0,0,0.35)]">
+                <div className="p-7">
+                  <div className="flex items-start gap-5">
+                    {/* avatar */}
+                    <div className="h-14 w-14 rounded-2xl bg-black/[0.04] flex items-center justify-center text-black/35 font-extrabold text-xl">
+                      {(a.fullName || "A").slice(0, 1).toUpperCase()}
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <Pill tone="green">
+                          {a.liveInKarachi === "Yes" ? "IN-HOUSE" : "REMOTE"}
+                        </Pill>
+                        <div className="text-[11px] font-bold tracking-[0.22em] uppercase text-black/35">
+                          ROLE: {a.job?.title || "—"}
+                        </div>
+                      </div>
+
+                      <div className="mt-2 text-[28px] leading-tight font-extrabold text-black/85">
+                        {a.fullName}
+                      </div>
+
+                      <div className="mt-3 flex flex-wrap items-center gap-6 text-[13px] font-semibold">
+                        <div className="inline-flex items-center gap-2 text-orange-600">
+                          <Mail size={16} />
+                          {a.email}
+                        </div>
+                        <div className="inline-flex items-center gap-2 text-black/45">
+                          <MapPin size={16} />
+                          {a.area || "Global"}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <div className="text-[11px] tracking-[0.22em] uppercase text-black/45 font-semibold">
-                    {a.liveInKarachi === "Yes" ? "In-house" : "Remote"} • Role:{" "}
-                    {a.job?.title || "—"}
+
+                <div className="h-px w-full bg-black/[0.05]" />
+
+                {/* stats row */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 p-7">
+                  <div>
+                    <div className="text-[11px] font-bold tracking-[0.22em] uppercase text-black/30">
+                      EXPERIENCE
+                    </div>
+                    <div className="mt-2 text-[14px] font-extrabold text-black/75">
+                      {a.expYears ?? "—"} Years
+                    </div>
                   </div>
-                  <div className="mt-1 text-[26px] font-bold text-black/85">
-                    {a.fullName}
+
+                  <div>
+                    <div className="text-[11px] font-bold tracking-[0.22em] uppercase text-black/30">
+                      EXPECTATION
+                    </div>
+                    <div className="mt-2 text-[14px] font-extrabold text-black/75">
+                      {(a.pkrExpectation ?? 0).toLocaleString()} PKR
+                    </div>
                   </div>
-                  <div className="mt-2 text-sm text-black/55">
-                    {a.email} • {a.area || "Global"}
+
+                  <div>
+                    <div className="text-[11px] font-bold tracking-[0.22em] uppercase text-black/30">
+                      AVAILABILITY
+                    </div>
+                    <div className="mt-2 text-[14px] font-extrabold text-black/75">
+                      {a.availability || "Immediately"}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 pt-6 border-t border-black/5 flex gap-6">
-                <InfoStat label="Experience" value={`${a.expYears} Years`} />
-                <InfoStat label="Expectation" value={`${a.pkrExpectation?.toLocaleString()} PKR`} />
-                <InfoStat label="Status" value={a.status} />
+              {/* ASSESSMENT CARD */}
+
+              <div className="rounded-[28px] bg-white border border-black/[0.06] shadow-[0_12px_35px_-24px_rgba(0,0,0,0.35)]">
+                <div className="p-7 space-y-4">
+                  <SectionTitle>ASSESSMENT CONTEXT</SectionTitle>
+
+                  <KVRow
+                    left="Karachi Residence"
+                    right={a.liveInKarachi === "Yes" ? "Confirmed" : "No"}
+                    rightTone={a.liveInKarachi === "Yes" ? "success" : "normal"}
+                  />
+                  <KVRow left="Office Commute Area" right={a.area || "—"} />
+
+                  {/* Resume block */}
+                  <div className="rounded-2xl bg-black/[0.02] border border-black/[0.04] p-5">
+                    <div className="text-[11px] font-bold tracking-[0.22em] uppercase text-black/30">
+                      RESUME / CV
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between gap-4">
+                      <div className="inline-flex items-center gap-3 min-w-0">
+                        <div className="h-9 w-9 rounded-xl bg-white border border-black/[0.06] flex items-center justify-center text-black/45">
+                          <FileText size={18} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="truncate text-[13px] font-extrabold text-black/75">
+                            {a.resume?.originalName || "No file"}
+                          </div>
+                        </div>
+                      </div>
+
+                      {resumeUrl ? (
+                        <a
+                          href={resumeUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="shrink-0 inline-flex items-center gap-2 rounded-xl border border-black/[0.10] bg-white px-4 py-2 text-[11px] font-extrabold tracking-[0.18em] uppercase text-black/70 hover:bg-black/[0.02]"
+                        >
+                          <Download size={16} />
+                          Download File
+                        </a>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  {/* Portfolio */}
+                  <div className="rounded-2xl bg-black/[0.02] border border-black/[0.04] p-5">
+                    <div className="text-[11px] font-bold tracking-[0.22em] uppercase text-black/30">
+                      PORTFOLIO / WORK LINK
+                    </div>
+
+                    {a.portfolioUrl ? (
+                      <a
+                        href={a.portfolioUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-3 block text-[13px] font-extrabold text-orange-600 break-all hover:underline"
+                      >
+                        {a.portfolioUrl}
+                      </a>
+                    ) : (
+                      <div className="mt-3 text-[13px] font-semibold text-black/45">
+                        No link provided.
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="bg-white/80 border border-white/70 rounded-[26px] p-7 shadow-[0_14px_40px_-26px_rgba(0,0,0,0.4)]">
-              <div className="text-[12px] tracking-[0.22em] uppercase text-black/45 font-semibold">
-                Resume / CV
-              </div>
+            {/* button  */}
 
-              <div className="mt-4 flex items-center justify-between bg-black/[0.02] border border-black/5 rounded-[18px] px-5 py-4">
-                <div className="text-sm font-semibold text-black/70">
-                  {a.resume?.originalName || "No file"}
-                </div>
+            <div className="rounded-[28px] w-[30%] max-h-max bg-white border border-black/[0.06] shadow-[0_12px_35px_-24px_rgba(0,0,0,0.35)] p-6 space-y-3">
+              {a.status !== "interview" && (
+                <button
+                  onClick={() => setStatus("interview")}
+                  className={`${btnBase} bg-orange-600 hover:bg-orange-700 text-white`}
+                >
+                  Move to Interview
+                </button>
+              )}
 
-                {resumeUrl ? (
-                  <a
-                    href={resumeUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-4 py-2 rounded-xl border border-black/10 bg-white text-[12px] font-semibold text-black/70 hover:bg-black/[0.02]"
-                  >
-                    Download File
-                  </a>
-                ) : null}
-              </div>
+              {a.status !== "hired" && (
+                <button
+                  onClick={() => setStatus("hired")}
+                  className={`${btnBase} bg-emerald-600 hover:bg-emerald-700 text-white`}
+                >
+                  Hire Candidate
+                </button>
+              )}
 
-              <div className="mt-6 text-[12px] tracking-[0.22em] uppercase text-black/45 font-semibold">
-                Portfolio / Work Link
-              </div>
-              <a
-                href={a.portfolioUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-3 block bg-black/[0.02] border border-black/5 rounded-[18px] px-5 py-4 text-sm text-orange-600 break-all hover:underline"
-              >
-                {a.portfolioUrl}
-              </a>
-            </div>
-          </div>
+              {a.status !== "rejected" && (
+                <button
+                  onClick={() => setStatus("rejected")}
+                  className={`${btnBase} bg-white border border-black/10 hover:bg-black/[0.02] text-orange-600`}
+                >
+                  Reject
+                </button>
+              )}
 
-          {/* right actions */}
-          <div className="space-y-6">
-
-            <div className="bg-white/80 border border-white/70 rounded-[26px] p-6 shadow-[0_14px_40px_-26px_rgba(0,0,0,0.4)] space-y-3">
               <button
-                onClick={() => setStatus("interview")}
-                className="w-full py-3 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-bold tracking-wide"
+                onClick={deleteCandidate}
+                disabled={deleting}
+                className={`${btnBase} ${
+                  deleting
+                    ? "bg-black/10 text-black/40 cursor-not-allowed"
+                    : "bg-red-600 hover:bg-red-700 text-white"
+                }`}
               >
-                Move to Interview
-              </button>
-              <button
-                onClick={() => setStatus("hired")}
-                className="w-full py-3 rounded-2xl bg-green-600 hover:bg-green-700 text-white font-bold tracking-wide"
-              >
-                Hire Candidate
-              </button>
-              <button
-                onClick={() => setStatus("rejected")}
-                className="w-full py-3 rounded-2xl bg-white border border-black/10 hover:bg-black/[0.02] text-orange-600 font-bold tracking-wide"
-              >
-                Reject
+                {deleting ? "Deleting..." : "Delete Candidate"}
               </button>
             </div>
           </div>

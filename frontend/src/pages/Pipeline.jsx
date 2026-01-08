@@ -14,10 +14,18 @@ function DeptPill({ label }) {
 function StatusPill({ children, tone = "muted" }) {
   const tones = {
     muted: "bg-black/[0.04] text-black/55 border-black/10",
-    orange: "bg-orange-500 text-white border-orange-500",
+    orange:
+      "bg-orange-500 text-white border-orange-500 shadow-[0_10px_30px_-12px_rgba(249,115,22,0.55)]",
   };
+
   return (
-    <div className={`px-3 py-1 rounded-full text-[11px] font-semibold border ${tones[tone]}`}>
+    <div
+      className={[
+        "px-3 py-1 rounded-full text-[11px] font-semibold border transition",
+        tones[tone],
+        tone === "orange" ? "glow-pill" : "",
+      ].join(" ")}
+    >
       {children}
     </div>
   );
@@ -30,10 +38,26 @@ function JobCard({ job, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="text-left w-full bg-white/80 backdrop-blur border border-white/70 rounded-[22px] p-6 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.25)] hover:shadow-[0_18px_45px_-22px_rgba(0,0,0,0.35)] transition"
+      className="
+        group text-left w-full bg-white/80 backdrop-blur
+        border border-white/70 rounded-[22px] p-6
+        shadow-[0_10px_30px_-18px_rgba(0,0,0,0.25)]
+        transition-all duration-300
+        hover:border-orange-400
+        hover:shadow-[0_18px_45px_-22px_rgba(249,115,22,0.35)]
+      "
     >
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center font-bold text-black/70">
+        <div
+          className="
+            w-10 h-10 rounded-xl flex items-center justify-center font-bold
+            bg-black/[0.04] text-black/70
+            transition
+            group-hover:bg-orange-500
+            group-hover:text-white
+          "
+        >
           {job.title?.[0]?.toUpperCase() || "J"}
         </div>
 
@@ -44,28 +68,50 @@ function JobCard({ job, onClick }) {
         )}
       </div>
 
+      {/* Title */}
       <div className="mt-5">
-        <div className="text-[18px] font-semibold text-black/85 leading-snug">
+        <div
+          className="
+            text-[18px] font-semibold leading-snug
+            text-black/85
+            transition-colors
+            group-hover:text-orange-600
+          "
+        >
           {job.title}
         </div>
+
         <DeptPill label={job.department} />
       </div>
 
+      {/* Footer */}
       <div className="mt-6 pt-5 border-t border-black/5 flex items-center justify-between">
         <div>
           <div className="text-[11px] tracking-[0.22em] uppercase text-black/35 font-semibold">
             Total Pipeline
           </div>
-          <div className="mt-1 text-[22px] font-bold text-black/80">{total}</div>
+          <div className="mt-1 text-[22px] font-bold text-black/80">
+            {total}
+          </div>
         </div>
 
-        <div className="w-8 h-8 rounded-full border border-black/10 flex items-center justify-center text-black/50">
+        <div
+          className="
+            w-8 h-8 rounded-full border flex items-center justify-center
+            border-black/10 text-black/50
+            transition
+            group-hover:border-orange-400
+            group-hover:text-orange-500
+          "
+        >
           →
         </div>
       </div>
     </button>
   );
 }
+
+
 
 export default function Pipeline() {
   const [items, setItems] = useState([]);
@@ -85,13 +131,15 @@ export default function Pipeline() {
 
   return (
     <Background>
-      <div className="max-w-6xl mx-auto px-8 py-12">
-        <h1 className="text-[28px] font-bold text-black/85">Talent Dashboard</h1>
+      <div className="mx-auto max-w-7xl px-6 py-12">
+        <h1 className="text-[28px] font-bold text-black/85">
+          Talent Dashboard
+        </h1>
         <p className="mt-2 text-sm text-black/55">
           Overview of recruitment pipelines by role.
         </p>
 
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-7">
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
           {loading ? (
             <div className="text-sm text-black/50">Loading...</div>
           ) : (

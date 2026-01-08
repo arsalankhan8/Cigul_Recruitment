@@ -64,8 +64,8 @@ function JobCard({ job, onEdit, onArchive, onPublish }) {
 
   return (
     <div className="rounded-2xl bg-white border border-black/10 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
-      <div className="px-5 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4 min-w-0">
+      <div className="px-5 py-4 flex flex-col items-start gap-8 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-4 min-w-0 flex-wrap">
           <div className="w-12 h-12 rounded-xl bg-black/5 border border-black/10 flex items-center justify-center font-semibold text-black/70">
             {initial}
           </div>
@@ -204,7 +204,7 @@ export default function JobsManager() {
         }}
       />
 
-      <div className="mx-auto max-w-5xl px-6 pt-12 pb-16">
+      <div className="mx-auto max-w-7xl px-6 py-10">
         <div className="flex items-start justify-between gap-6">
           <div>
             <h1 className="text-[26px] font-semibold tracking-tight text-black">

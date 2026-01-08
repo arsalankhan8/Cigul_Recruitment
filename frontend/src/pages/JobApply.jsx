@@ -30,7 +30,36 @@ const defaultForm = {
   resumeFile: null,
 };
 
-function SectionList({ title, items }) {
+function explodeBullets(arr) {
+  if (!Array.isArray(arr)) return [];
+
+  const stripHeadings = (s) =>
+    s
+      .replace(/\bRequirements\b/gi, "")
+      .replace(/\bResponsibilities\b/gi, "")
+      .replace(/\bPerks\b/gi, "");
+
+  const protectParentheses = (s) =>
+    s.replace(/\(([^)]*)\)/g, (m) => m.replace(/,/g, "§§COMMA§§"));
+
+  const restoreParentheses = (s) => s.replace(/§§COMMA§§/g, ",");
+
+  return arr.flatMap((x) => {
+    if (!x) return [];
+    let s = stripHeadings(String(x).trim());
+    s = s.replace(/\r?\n+/g, " ");
+    s = protectParentheses(s);
+
+    const parts = s
+      .split(/\.\s*,\s*|\. +|,\s*/g)
+      .map((p) => restoreParentheses(p).trim())
+      .filter(Boolean);
+
+    return parts;
+  });
+}
+
+function SectionList({ title, items, accent = "#ef5518" }) {
   if (!items?.length) return null;
 
   return (
@@ -42,9 +71,12 @@ function SectionList({ title, items }) {
         {items.map((item, idx) => (
           <li
             key={idx}
-            className="flex gap-3 text-[14px] leading-6 text-slate-700"
+            className="flex gap-3 text-[14px] leading-6 text-slate-700 items-center"
           >
-            <span className="mt-1 inline-block h-2 w-2 rounded-full bg-[#ef5518]" />
+            <span
+              className="mt-1 inline-block h-2 w-2 rounded-full"
+              style={{ backgroundColor: accent }}
+            />
             <span className="flex-1">{item}</span>
           </li>
         ))}
@@ -53,16 +85,125 @@ function SectionList({ title, items }) {
   );
 }
 
+function GridBackdrop() {
+  return (
+    <div
+      className="pointer-events-none absolute inset-0 opacity-70"
+      style={{
+        backgroundImage:
+          "linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px)",
+        backgroundSize: "46px 46px",
+      }}
+    />
+  );
+}
+
+function CornerGlow() {
+  return (
+    <>
+      <div className="pointer-events-none absolute -left-24 -bottom-24 h-[420px] w-[420px] rounded-full bg-slate-200/35 blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 -top-24 h-[420px] w-[420px] rounded-full bg-orange-200/35 blur-3xl" />
+    </>
+  );
+}
+
+function ProcessingScreen({ accent = "#ef5518" }) {
+  return (
+    <div className="relative min-h-screen bg-[#f8fafc] overflow-hidden">
+      <GridBackdrop />
+      <CornerGlow />
+
+      <div className="relative mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
+        <div className="text-center">
+          {/* spinner */}
+          <div className="mx-auto mb-6 grid h-16 w-16 place-items-center">
+            <div
+              className="h-14 w-14 rounded-full border-[4px] border-black/10 border-t-[4px]"
+              style={{ borderTopColor: accent }}
+            />
+          </div>
+
+          <h1 className="text-[28px] sm:text-[34px] font-semibold tracking-tight text-slate-900">
+            Processing Application
+          </h1>
+          <p className="mt-3 text-[14px] text-slate-500">
+            Ingesting candidate profile and performing AI Analysis...
+          </p>
+        </div>
+      </div>
+
+      {/* CSS-only spin */}
+      <style>{`
+        .border-t-\\[4px\\] { animation: spin 0.9s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
+    </div>
+  );
+}
+
+function SuccessScreen({ onReturn }) {
+  return (
+    <div className="relative min-h-screen bg-[#f8fafc] overflow-hidden">
+      <GridBackdrop />
+      <CornerGlow />
+
+      <div className="relative mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
+        <div className="text-center">
+          <div className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-2xl bg-slate-900 text-white shadow-[0_18px_60px_rgba(15,23,42,0.25)]">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+            >
+              <path
+                d="M20 6L9 17l-5-5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+
+          <h1 className="text-[34px] sm:text-[44px] font-semibold tracking-tight text-slate-900">
+            Application Sent
+          </h1>
+
+          <p className="mt-3 text-[14px] text-slate-500">
+            Your profile has been ingested into our Talent OS. Our team reviews
+            <br className="hidden sm:block" />
+            profiles within 48 hours.
+          </p>
+
+          <button
+            onClick={onReturn}
+            className="mt-8 inline-flex items-center justify-center rounded-xl bg-black px-8 py-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-white shadow-[0_16px_45px_rgba(0,0,0,0.25)] transition hover:opacity-95 active:scale-[0.99]"
+            type="button"
+          >
+            Return to Jobs
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function JobApply() {
   const { jobId } = useParams();
   const navigate = useNavigate();
+
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
   const [form, setForm] = useState(() => ({ ...defaultForm }));
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const [fileKey, setFileKey] = useState(0);
+
+  // NEW: stage controls the full-screen UI
+  const [stage, setStage] = useState("form"); // "form" | "processing" | "success"
 
   useEffect(() => {
     let alive = true;
@@ -100,19 +241,16 @@ export default function JobApply() {
   }, [job]);
 
   const lists = useMemo(() => {
-    const normalize = (arr) => (Array.isArray(arr) ? arr.filter(Boolean) : []);
     return {
-      requirements: normalize(job?.requirements),
-      responsibilities: normalize(job?.responsibilities),
-      perks: normalize(job?.perks),
+      requirements: explodeBullets(job?.requirements),
+      responsibilities: explodeBullets(job?.responsibilities),
+      perks: explodeBullets(job?.perks),
     };
   }, [job]);
 
   const onFileChange = (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setForm((prev) => ({ ...prev, resumeFile: file }));
-    }
+    if (file) setForm((prev) => ({ ...prev, resumeFile: file }));
   };
 
   const handleSubmit = async (e) => {
@@ -129,6 +267,8 @@ export default function JobApply() {
 
     try {
       setSubmitting(true);
+      setStage("processing"); // ✅ show processing screen
+
       const data = new FormData();
       data.append("fullName", form.fullName);
       data.append("email", form.email);
@@ -143,13 +283,14 @@ export default function JobApply() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      setFeedback({
-        type: "success",
-        text: "Application submitted. We will get back to you soon!",
-      });
+      // reset form (optional)
       setForm({ ...defaultForm });
       setFileKey((k) => k + 1);
+
+      // ✅ show success screen
+      setStage("success");
     } catch (err) {
+      setStage("form"); // ✅ go back to form if fail
       setFeedback({
         type: "error",
         text:
@@ -162,16 +303,17 @@ export default function JobApply() {
     }
   };
 
+  // ✅ FULL SCREEN STATES
+  if (stage === "processing") return <ProcessingScreen accent={t.accent} />;
+  if (stage === "success")
+    return <SuccessScreen onReturn={() => navigate("/jobs")} />;
+
+  // ✅ NORMAL FORM PAGE
   return (
-    <div className="relative min-h-screen bg-[#f8fafc] pb-16">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-70"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px)",
-          backgroundSize: "46px 46px",
-        }}
-      />
+<div className="relative min-h-screen bg-[#f8fafc] pb-16 overflow-hidden">
+
+      <GridBackdrop />
+      <CornerGlow />
 
       <div className="relative mx-auto max-w-6xl px-4 pt-12 sm:px-6">
         <button
@@ -231,18 +373,24 @@ export default function JobApply() {
                   <SectionList
                     title="Requirements"
                     items={lists.requirements}
+                    accent={t.accent}
                   />
                   <SectionList
                     title="Responsibilities"
                     items={lists.responsibilities}
+                    accent={t.accent}
                   />
-                  <SectionList title="Perks" items={lists.perks} />
+                  <SectionList
+                    title="Perks"
+                    items={lists.perks}
+                    accent={t.accent}
+                  />
                 </div>
               </>
             )}
           </div>
 
-          <div className="rounded-[30px] border border-black/10 bg-white shadow-[0_26px_70px_rgba(0,0,0,0.10)]">
+          <div className="rounded-[30px] border border-black/10 bg-white shadow-[0_26px_70px_rgba(0,0,0,0.10)] max-h-max">
             <div className="border-b border-black/5 px-8 py-6">
               <p className="text-[12px] font-semibold tracking-[0.18em] uppercase text-black/40">
                 Apply Now
@@ -265,10 +413,11 @@ export default function JobApply() {
                   {feedback.text}
                 </div>
               ) : null}
-
               <div className="grid gap-4 sm:grid-cols-2">
+                {" "}
                 <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
-                  Full Name *
+                  {" "}
+                  Full Name *{" "}
                   <input
                     required
                     name="fullName"
@@ -278,11 +427,11 @@ export default function JobApply() {
                     }
                     className="h-11 rounded-xl border border-black/10 px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
                     placeholder="e.g. Ali Khan"
-                  />
-                </label>
-
+                  />{" "}
+                </label>{" "}
                 <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
-                  Email *
+                  {" "}
+                  Email *{" "}
                   <input
                     required
                     type="email"
@@ -293,12 +442,12 @@ export default function JobApply() {
                     }
                     className="h-11 rounded-xl border border-black/10 px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
                     placeholder="ali@example.com"
-                  />
-                </label>
-              </div>
-
+                  />{" "}
+                </label>{" "}
+              </div>{" "}
               <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
-                Portfolio / Best Work *
+                {" "}
+                Portfolio / Best Work *{" "}
                 <input
                   required
                   name="portfolioUrl"
@@ -308,24 +457,27 @@ export default function JobApply() {
                   }
                   className="h-11 rounded-xl border border-black/10 px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
                   placeholder="cigul.com or https://behance.net/..."
-                />
-              </label>
-
+                />{" "}
+              </label>{" "}
               <div className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
-                Resume (PDF/DOC, max 500KB) *
+                {" "}
+                Resume (PDF/DOC, max 500KB) *{" "}
                 <label
                   className="group flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-black/15 bg-black/[0.015] px-4 py-6 text-center transition hover:border-black/25"
                   style={{ color: t.accent }}
                 >
+                  {" "}
                   <input
                     key={fileKey}
                     type="file"
                     accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     className="hidden"
                     onChange={onFileChange}
-                  />
+                  />{" "}
                   <div className="flex flex-col items-center gap-2 text-[13px] font-semibold text-slate-600">
+                    {" "}
                     <div className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-sm ring-1 ring-black/5">
+                      {" "}
                       <svg
                         width="22"
                         height="22"
@@ -334,24 +486,28 @@ export default function JobApply() {
                         stroke="currentColor"
                         strokeWidth="1.8"
                       >
-                        <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-                      </svg>
-                    </div>
+                        {" "}
+                        <path d="M12 5v14M5 12h14" strokeLinecap="round" />{" "}
+                      </svg>{" "}
+                    </div>{" "}
                     <span className="text-[13px] text-black/70">
+                      {" "}
                       {form.resumeFile
                         ? form.resumeFile.name
-                        : "Click to upload or drag and drop"}
-                    </span>
+                        : "Click to upload or drag and drop"}{" "}
+                    </span>{" "}
                     <span className="text-[12px] text-slate-500">
-                      PDF, DOC, or DOCX
-                    </span>
-                  </div>
-                </label>
-              </div>
-
+                      {" "}
+                      PDF, DOC, or DOCX{" "}
+                    </span>{" "}
+                  </div>{" "}
+                </label>{" "}
+              </div>{" "}
               <div className="grid gap-4 sm:grid-cols-2">
+                {" "}
                 <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
-                  Live in Karachi? *
+                  {" "}
+                  Live in Karachi? *{" "}
                   <select
                     value={form.liveInKarachi}
                     onChange={(e) =>
@@ -359,13 +515,14 @@ export default function JobApply() {
                     }
                     className="h-11 rounded-xl border border-black/10 bg-white px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
                   >
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </label>
-
+                    {" "}
+                    <option value="Yes">Yes</option>{" "}
+                    <option value="No">No</option>{" "}
+                  </select>{" "}
+                </label>{" "}
                 <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
-                  Area
+                  {" "}
+                  Area{" "}
                   <input
                     name="area"
                     value={form.area}
@@ -374,13 +531,14 @@ export default function JobApply() {
                     }
                     className="h-11 rounded-xl border border-black/10 px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
                     placeholder="e.g. DHA Phase 6"
-                  />
-                </label>
-              </div>
-
+                  />{" "}
+                </label>{" "}
+              </div>{" "}
               <div className="grid gap-4 sm:grid-cols-2">
+                {" "}
                 <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
-                  Experience (years) *
+                  {" "}
+                  Experience (years) *{" "}
                   <input
                     required
                     type="number"
@@ -392,11 +550,11 @@ export default function JobApply() {
                     }
                     className="h-11 rounded-xl border border-black/10 px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
                     placeholder="e.g. 5"
-                  />
-                </label>
-
+                  />{" "}
+                </label>{" "}
                 <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
-                  PKR Expectation *
+                  {" "}
+                  PKR Expectation *{" "}
                   <input
                     required
                     type="number"
@@ -408,10 +566,9 @@ export default function JobApply() {
                     }
                     className="h-11 rounded-xl border border-black/10 px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
                     placeholder="e.g. 150000"
-                  />
-                </label>
+                  />{" "}
+                </label>{" "}
               </div>
-
               <button
                 type="submit"
                 disabled={submitting || loading || !!error || !job}

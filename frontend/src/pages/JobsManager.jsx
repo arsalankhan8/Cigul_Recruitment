@@ -205,7 +205,7 @@ export default function JobsManager() {
       />
 
       <div className="mx-auto max-w-7xl px-6 py-10">
-        <div className="flex items-start justify-between gap-6">
+        <div className="flex items-start justify-between gap-6 flex-col md:flex-row">
           <div>
             <h1 className="text-[26px] font-semibold tracking-tight text-black">
               Jobs Console

@@ -75,23 +75,22 @@ export default function CandidateDetail() {
 
   const [deleting, setDeleting] = useState(false);
 
-async function deleteCandidate() {
-  const ok = window.confirm(
-    "Delete this candidate application and resume file permanently?"
-  );
-  if (!ok) return;
+  async function deleteCandidate() {
+    const ok = window.confirm(
+      "Delete this candidate application and resume file permanently?"
+    );
+    if (!ok) return;
 
-  try {
-    setDeleting(true);
-    await api.delete(`/api/pipeline/applications/${appId}`);
-    nav(`/dashboard/pipeline/${jobId}`);
-  } catch (err) {
-    alert(err?.response?.data?.message || "Failed to delete candidate");
-  } finally {
-    setDeleting(false);
+    try {
+      setDeleting(true);
+      await api.delete(`/api/pipeline/applications/${appId}`);
+      nav(`/dashboard/pipeline/${jobId}`);
+    } catch (err) {
+      alert(err?.response?.data?.message || "Failed to delete candidate");
+    } finally {
+      setDeleting(false);
+    }
   }
-}
-
 
   useEffect(() => {
     load();
@@ -151,8 +150,8 @@ async function deleteCandidate() {
             ← Back to Pipeline
           </button>
 
-          <div className="mt-8 flex justify-between gap-10">
-            <div className="flex flex-col justify-between w-[70%] gap-10">
+          <div className="mt-8 flex flex-col gap-10 md:flex-row md:justify-between">
+            <div className="flex flex-col justify-between md:w-[70%] gap-10 w-full">
               {/* TOP CARD */}
 
               <div className="rounded-[28px] bg-white border border-black/[0.06] shadow-[0_12px_35px_-24px_rgba(0,0,0,0.35)]">
@@ -173,7 +172,7 @@ async function deleteCandidate() {
                         </div>
                       </div>
 
-                      <div className="mt-2 text-[28px] leading-tight font-extrabold text-black/85">
+                      <div className="mt-2 text-[18px] md:text-[28px] leading-tight font-extrabold text-black/85">
                         {a.fullName}
                       </div>
 
@@ -296,7 +295,7 @@ async function deleteCandidate() {
 
             {/* button  */}
 
-            <div className="rounded-[28px] w-[30%] max-h-max bg-white border border-black/[0.06] shadow-[0_12px_35px_-24px_rgba(0,0,0,0.35)] p-6 space-y-3">
+            <div className="rounded-[28px] md:w-[30%] max-h-max bg-white border border-black/[0.06] shadow-[0_12px_35px_-24px_rgba(0,0,0,0.35)] p-6 space-y-3 w-full">
               {a.status !== "interview" && (
                 <button
                   onClick={() => setStatus("interview")}

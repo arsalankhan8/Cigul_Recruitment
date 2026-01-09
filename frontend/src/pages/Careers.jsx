@@ -178,7 +178,7 @@ function JobCard({ jobUI, onApply }) {
     <div
       onClick={() => onApply?.(jobUI)}
       className={[
-        "group relative flex h-full cursor-pointer flex-col overflow-hidden",
+        "group shadow-[0_26px_70px_rgba(0,0,0,0.10)]  relative flex h-full cursor-pointer flex-col overflow-hidden",
         "rounded-[32px] border border-white/60",
         t.cardBg,
         "p-7 transition-all duration-500",

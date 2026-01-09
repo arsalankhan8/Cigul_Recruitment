@@ -104,7 +104,7 @@ export default function Navbar({ onLogout }) {
           {/* RIGHT: Desktop auth + Mobile hamburger */}
           <div className="flex items-center gap-3">
             {/* Desktop auth */}
-            <div className="hidden md:block">
+            {/* <div className="hidden md:block">
               {!isAuthenticated ? (
                 <NavLink
                   to="/login"
@@ -124,7 +124,7 @@ export default function Navbar({ onLogout }) {
                   Log Out
                 </button>
               )}
-            </div>
+            </div> */}
 
             {/* Mobile hamburger */}
             <button

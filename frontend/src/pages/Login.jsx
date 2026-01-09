@@ -5,8 +5,9 @@ import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("CigulRecruitment");
-  const [password, setPassword] = useState("cigulR!e@c#r$u%i^tment(!#^)");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
@@ -16,15 +17,18 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { data } = await api.post("/api/auth/login", { username, password });
-    
+      const { data } = await api.post("/api/auth/login", {
+        username,
+        password,
+      });
+
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-    
+
       navigate("/dashboard/pipeline");
     } catch (e) {
       setErr(e?.response?.data?.message || "Login failed");
-    }finally {
+    } finally {
       setLoading(false);
     }
   }

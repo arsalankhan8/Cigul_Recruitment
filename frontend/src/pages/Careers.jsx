@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
-import bgImg from "../assets/careers-hero.png";
+import bgImg from "../assets/team-image.jpg";
 import Hero from "../components/Hero";
 import Footer from "../components/footer";
 const tones = {

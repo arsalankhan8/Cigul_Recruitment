@@ -590,10 +590,9 @@ export default function JobApply() {
           </div>
         </div>
 
-                            {/* footer  */}
-    <Footer/>
+        {/* footer  */}
+        <Footer />
       </div>
-
     </div>
   );
 }

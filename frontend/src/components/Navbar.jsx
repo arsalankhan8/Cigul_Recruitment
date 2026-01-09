@@ -74,12 +74,12 @@ export default function Navbar({ onLogout }) {
                 Open Roles
               </NavLink>
 
-              <NavLink
+              {/* <NavLink
                 to="/about"
                 className={({ isActive }) => (isActive ? active : inactive)}
               >
                 About Cigul
-              </NavLink>
+              </NavLink> */}
 
               {isAuthenticated && (
                 <>

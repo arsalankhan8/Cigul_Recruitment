@@ -15,8 +15,9 @@ const tones = {
     tagText: "text-[#ef5518]",
     tagRing: "ring-[#ef5518]/20",
 
-    // card styling
-    cardBg: "bg-gradient-to-br from-white via-white to-[#ef5518]/10",
+    // ✅ CARD GRADIENT — COLOR AT TOP → FADES DOWN
+    cardBg: "bg-gradient-to-b from-[#ef5518]/10 via-white to-white",
+
     cardHoverBorder: "hover:border-[#ef5518]/30",
     glowA: "bg-[#ef5518]/25",
     glowB: "bg-[#ef5518]/18",
@@ -36,8 +37,9 @@ const tones = {
     tagText: "text-[#4f46e5]",
     tagRing: "ring-[#4f46e5]/20",
 
-    // card styling
-    cardBg: "bg-gradient-to-br from-white via-white to-[#4f46e5]/10",
+    // ✅ CARD GRADIENT — COLOR AT TOP → FADES DOWN
+    cardBg: "bg-gradient-to-b from-[#4f46e5]/10 via-white to-white",
+
     cardHoverBorder: "hover:border-[#4f46e5]/30",
     glowA: "bg-[#4f46e5]/25",
     glowB: "bg-[#4f46e5]/18",
@@ -377,8 +379,8 @@ export default function Careers() {
             </div>
           )}
         </div>
-                              {/* footer  */}
-    <Footer/>
+        {/* footer  */}
+        <Footer />
       </div>
     </div>
   );

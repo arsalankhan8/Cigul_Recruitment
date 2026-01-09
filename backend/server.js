@@ -6,39 +6,44 @@ import authRoutes from "./src/routes/auth.routes.js";
 import jobsRoutes from "./src/routes/jobs.routes.js";
 import connectDB from "./src/config/db.js";
 import pipelineRoutes from "./src/routes/pipeline.routes.js";
-
+import { fileURLToPath } from "url";
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({
-  origin: "*", // dev only
-}));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(
+  cors({
+    origin: "*", // dev only
+  })
+);
 app.use(express.json());
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-app.get("/", (req, res) => res.send("Cigul Recruitment API running ✅"));
+app.get("/api/health", (req, res) => res.send("Cigul Recruitment API running ✅"));
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobsRoutes);
 app.use("/api/pipeline", pipelineRoutes);
-async function start() {
-  await connectDB();
 
-  // app.listen(PORT, () => {
-  //   console.log(`✅ Server listening on port ${PORT}`);
-  // });
+app.use(express.static(path.join(__dirname, "..", "frontend", "dist")));
 
-app.listen(5000, "0.0.0.0", () => {
-  console.log("Backend running");
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "frontend", "dist", "index.html"));
 });
 
 
+
+async function start() {
+  await connectDB();
+  app.listen(PORT, () => console.log("Server running on", PORT));
 }
 
 start().catch((err) => {
   console.error("Failed to start server:", err);
   process.exit(1);
 });
-

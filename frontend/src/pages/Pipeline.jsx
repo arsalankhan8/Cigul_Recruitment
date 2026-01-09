@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Background from "../components/ui/Background";
 import { api } from "../lib/api";
-
+import Footer from "../components/footer";
 function DeptPill({ label }) {
   return (
     <div className="text-[11px] tracking-[0.24em] uppercase text-black/40 font-semibold mt-1">
@@ -104,14 +104,22 @@ function JobCard({ job, onClick }) {
             group-hover:text-orange-500
           "
         >
-          →
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            className="text-black"
+          >
+            <path
+              fill="currentColor"
+              d="M12 4l-1.41 1.41L15.17 10H4v2h11.17l-4.58 4.59L12 18l8-8Z"
+            />
+          </svg>
         </div>
       </div>
     </button>
   );
 }
-
-
 
 export default function Pipeline() {
   const [items, setItems] = useState([]);
@@ -152,6 +160,8 @@ export default function Pipeline() {
             ))
           )}
         </div>
+        {/* footer  */}
+        <Footer />
       </div>
     </Background>
   );

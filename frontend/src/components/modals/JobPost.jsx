@@ -144,7 +144,7 @@ export default function JobPost({ isOpen, onClose, onSaved, editJob = null }) {
         </div>
 
         {/* Body */}
-        <div className="px-8 py-6 space-y-5 max-h-[70vh] overflow-y-auto">
+        <div className="px-8 py-6 space-y-5 md:max-h-[70vh] max-h-[60vh] overflow-y-auto">
           {err ? (
             <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-[12px] text-red-700">
               {err}
@@ -205,7 +205,7 @@ export default function JobPost({ isOpen, onClose, onSaved, editJob = null }) {
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-5 border-t border-black/10 flex justify-end gap-3">
+        <div className="px-8 py-5 border-t border-black/10 flex flex-wrap md:justify-end gap-3">
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-full text-[11px] font-semibold tracking-[0.18em] uppercase text-black/40 hover:text-black hover:bg-black/5 transition"

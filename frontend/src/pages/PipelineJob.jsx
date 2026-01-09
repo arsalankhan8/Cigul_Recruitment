@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Background from "../components/ui/Background";
 import { api } from "../lib/api";
+import Footer from "../components/footer";
 
 function Column({ title, count, children, onDrop, onDragOver }) {
   return (
@@ -76,9 +77,7 @@ export function CandidateCard({ a, onClick }) {
 
         <div className="mt-3 flex flex-wrap gap-2">
           {/* Experience */}
-          <Pill tone="orange">
-            Exp: {a.expYears ?? 0} yrs
-          </Pill>
+          <Pill tone="orange">Exp: {a.expYears ?? 0} yrs</Pill>
 
           {/* Source / Location */}
           <Pill tone="purple">
@@ -95,7 +94,12 @@ export default function PipelineJob() {
   const nav = useNavigate();
 
   const [job, setJob] = useState(null);
-  const [columns, setColumns] = useState({ applied: [], interview: [], rejected: [], hired: [] });
+  const [columns, setColumns] = useState({
+    applied: [],
+    interview: [],
+    rejected: [],
+    hired: [],
+  });
   const [totalCandidates, setTotalCandidates] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -136,29 +140,38 @@ export default function PipelineJob() {
       <div className="mx-auto max-w-7xl px-6 py-10">
         <button
           onClick={() => nav("/dashboard/pipeline")}
-          className="text-[12px] font-semibold tracking-[0.2em] uppercase text-black/60 hover:text-black/80"
+          className="text-[12px]  font-semibold tracking-[0.2em] uppercase text-black/60 hover:text-black/80"
         >
-          ← Back to Dashboard
+          <svg width="16" height="16" viewBox="0 0 24 24" className="text-black inline-block">
+            {" "}
+            <path
+              fill="currentColor"
+              d="M12 4l1.41 1.41L8.83 10H20v2H8.83l4.58 4.59L12 18l-8-8Z"
+            />{" "}
+          </svg>  Back to Dashboard{" "}
+         
         </button>
 
-
-<div class="mt-2 flex flex-col items-start gap-2 lg:flex-row lg:items-center lg:justify-between lg:gap-5">
-  <div>
-           <h1 className="text-[28px] leading-tight font-bold text-black/85">{title}</h1>
-            <div className="mt-1 text-sm text-black/55">{job?.workModel || ""}</div>
-  </div>
+        <div className="mt-2 flex flex-col items-start gap-2 lg:flex-row lg:items-center lg:justify-between lg:gap-5">
+          <div>
+            <h1 className="text-[28px] leading-tight font-bold text-black/85">
+              {title}
+            </h1>
+            <div className="mt-1 text-sm text-black/55">
+              {job?.workModel || ""}
+            </div>
+          </div>
 
           <div className="px-4 py-2 rounded-lg bg-white/80 border border-white/70 text-[11px] tracking-[0.22em] uppercase text-black/55 font-semibold shadow-sm">
-            Total Candidates: <span className="text-black/80 font-bold">{totalCandidates}</span>
+            Total Candidates:{" "}
+            <span className="text-black/80 font-bold">{totalCandidates}</span>
           </div>
-</div>
-
+        </div>
 
         {loading ? (
           <div className="mt-8 text-sm text-black/50">Loading...</div>
         ) : (
-        <div className="mt-8 lg:grid lg:grid-cols-4 lg:gap-6 flex gap-6 overflow-x-auto lg:overflow-x-visible pb-2">
-
+          <div className="mt-8 lg:grid lg:grid-cols-4 lg:gap-6 flex gap-6 overflow-x-auto lg:overflow-x-visible pb-2">
             <Column
               title="Applied"
               count={columns.applied.length}
@@ -169,7 +182,9 @@ export default function PipelineJob() {
                 <CandidateCard
                   key={a._id}
                   a={a}
-                  onClick={() => nav(`/dashboard/pipeline/${jobId}/candidate/${a._id}`)}
+                  onClick={() =>
+                    nav(`/dashboard/pipeline/${jobId}/candidate/${a._id}`)
+                  }
                 />
               ))}
             </Column>
@@ -184,7 +199,9 @@ export default function PipelineJob() {
                 <CandidateCard
                   key={a._id}
                   a={a}
-                  onClick={() => nav(`/dashboard/pipeline/${jobId}/candidate/${a._id}`)}
+                  onClick={() =>
+                    nav(`/dashboard/pipeline/${jobId}/candidate/${a._id}`)
+                  }
                 />
               ))}
             </Column>
@@ -199,7 +216,9 @@ export default function PipelineJob() {
                 <CandidateCard
                   key={a._id}
                   a={a}
-                  onClick={() => nav(`/dashboard/pipeline/${jobId}/candidate/${a._id}`)}
+                  onClick={() =>
+                    nav(`/dashboard/pipeline/${jobId}/candidate/${a._id}`)
+                  }
                 />
               ))}
             </Column>
@@ -214,13 +233,19 @@ export default function PipelineJob() {
                 <CandidateCard
                   key={a._id}
                   a={a}
-                  onClick={() => nav(`/dashboard/pipeline/${jobId}/candidate/${a._id}`)}
+                  onClick={() =>
+                    nav(`/dashboard/pipeline/${jobId}/candidate/${a._id}`)
+                  }
                 />
               ))}
             </Column>
           </div>
         )}
+
+        {/* footer  */}
+    <Footer/>
       </div>
+
     </Background>
   );
 }

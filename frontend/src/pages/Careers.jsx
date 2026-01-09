@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import bgImg from "../assets/careers-hero.png";
-
+import Hero from "../components/Hero";
+import Footer from "../components/footer";
 const tones = {
   orange: {
     // soft UI
@@ -173,6 +174,7 @@ function JobCard({ jobUI, onApply }) {
 
   return (
     <div
+      onClick={() => onApply?.(jobUI)}
       className={[
         "group relative flex h-full cursor-pointer flex-col overflow-hidden",
         "rounded-[32px] border border-white/60",
@@ -225,13 +227,15 @@ function JobCard({ jobUI, onApply }) {
 
         {/* CTA */}
         <button
-          onClick={() => onApply?.(jobUI)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onApply?.(jobUI);
+          }}
           className={[
             "flex w-full items-center justify-between",
             "rounded-2xl px-6 py-4",
             "text-xs font-bold uppercase tracking-widest text-white",
             "shadow-lg transition-all duration-300",
-            "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
             t.btnSolid,
             "group-hover:scale-[1.02]",
           ].join(" ")}
@@ -347,73 +351,8 @@ export default function Careers() {
         className="relative mx-auto max-w-7xl px-6 py-[20px] md:py-10
 "
       >
-        {/* Hero */}
-        <div className="grid items-start gap-10 lg:grid-cols-2">
-          <div className="pt-10">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-100 shadow-sm">
-              <span class="w-2 h-2 rounded-full bg-orange-500"></span>
-              <span class="text-[11px] font-semibold tracking-[0.14em] text-gray-900 uppercase">
-                We Are Hiring
-              </span>
-            </div>
-
-            <h1 className="mt-2 leading-tight text-[50px] md:text-[70px] font-bold tracking-tight text-slate-900
-">
-              Careers at Cigul
-            </h1>
-
-            <p className="mt-4 max-w-md text-[14px] leading-7 text-slate-500">
-              Join a team of designers, engineers, and strategists building the
-              digital future for clients Worldwide!
-            </p>
-
-            {/* Status */}
-            <div className="mt-6">
-              {loading && (
-                <p className="text-[12px] font-semibold tracking-[0.18em] uppercase text-slate-400">
-                  Loading jobs...
-                </p>
-              )}
-              {!loading && err && (
-                <p className="text-[12px] font-semibold tracking-[0.18em] uppercase text-red-500">
-                  {err}
-                </p>
-              )}
-              {!loading && !err && (
-                <p className="text-[12px] font-semibold tracking-[0.18em] uppercase text-slate-400">
-                  {uiJobs.length} open role{uiJobs.length === 1 ? "" : "s"}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Right image card */}
-          <div className="lg:justify-self-end">
-            <div className="relative overflow-hidden rounded-[26px] shadow-[0_26px_70px_rgba(0,0,0,0.22)] ring-1 ring-black/10">
-              <img
-               className="
-  h-[320px]
-  w-[620px]
-  lg:w-[620px]
-  max-lg:w-[-webkit-fill-available]
-  object-cover
-"
-                src={bgImg}
-                alt="Team meeting"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-
-              <div className="absolute bottom-6 left-6">
-                <p className="text-[14px] font-semibold text-white">
-                  Build the extraordinary.
-                </p>
-                <p className="mt-1 text-[11px] font-semibold tracking-[0.26em] uppercase text-white/80">
-                  KARACHI HQ
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* hero  */}
+        <Hero bgImg={bgImg} loading={loading} err={err} uiJobs={uiJobs} />
 
         {/* Cards */}
         <div className="mt-16">
@@ -438,6 +377,8 @@ export default function Careers() {
             </div>
           )}
         </div>
+                              {/* footer  */}
+    <Footer/>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import JobPost from "../components/modals/JobPost";
 import { api } from "../lib/api";
+import Footer from "../components/footer";
 
 function Badge({ children, tone = "gray" }) {
   const tones = {
@@ -71,7 +72,7 @@ function JobCard({ job, onEdit, onArchive, onPublish }) {
           </div>
 
           <div className="min-w-0">
-            <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center flex-wrap gap-3 min-w-0">
               <div className="font-semibold text-[15px] text-black truncate">
                 {job.title}
               </div>
@@ -251,17 +252,8 @@ export default function JobsManager() {
           )}
         </div>
 
-        <div className="mt-14 flex items-center justify-between text-[11px] tracking-[0.14em] uppercase text-black/30">
-          <div>© 2026 CIGUL | TALENT OS. All rights reserved.</div>
-          <div className="flex items-center gap-6">
-            <a className="hover:text-black/50 transition" href="#">
-              Visit main site
-            </a>
-            <a className="hover:text-black/50 transition" href="#">
-              Back to top ↑
-            </a>
-          </div>
-        </div>
+        {/* footer  */}
+    <Footer/>
       </div>
     </div>
   );

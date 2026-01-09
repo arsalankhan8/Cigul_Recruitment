@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../lib/api";
-
+import Footer from "../components/footer";
 const tone = {
   orange: {
     accent: "#ef5518",
-    pillBg: "bg-[#ef5518]/10",
-    pillText: "text-[#ef5518]",
+    pillBg: "bg-[#fff7ed]",
+    pillText: "text-[#ea580c]",
     pillRing: "ring-[#ef5518]/20",
     btn: "bg-[#ef5518] hover:bg-[#d94b16]",
   },
@@ -147,7 +147,7 @@ function SuccessScreen({ onReturn }) {
       <GridBackdrop />
       <CornerGlow />
 
-      <div className="relative mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
+      <div className="relative mx-auto flex mt-[100px] max-w-6xl items-center justify-center px-4">
         <div className="text-center">
           <div className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-2xl bg-slate-900 text-white shadow-[0_18px_60px_rgba(15,23,42,0.25)]">
             <svg
@@ -310,28 +310,27 @@ export default function JobApply() {
 
   // ✅ NORMAL FORM PAGE
   return (
-<div className="relative min-h-screen bg-[#f8fafc] pb-16 overflow-hidden">
-
+    <div className="relative min-h-screen bg-[#f8fafc] pb-16 overflow-hidden">
       <GridBackdrop />
       <CornerGlow />
 
       <div className="relative mx-auto max-w-6xl px-4 pt-12 sm:px-6">
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-[12px] font-semibold text-black/70 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-[1px] hover:shadow-md"
+          className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-[15px] md:text-[12px] font-semibold text-black/70 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-[1px] hover:shadow-md"
           type="button"
         >
-          ← Back
+          <svg width="16" height="16" viewBox="0 0 24 24" class="text-black">
+            <path
+              fill="currentColor"
+              d="M12 4l1.41 1.41L8.83 10H20v2H8.83l4.58 4.59L12 18l-8-8Z"
+            />
+          </svg>{" "}
+          Back
         </button>
 
-        <div className="mt-6">
-          <p className="text-[12px] font-semibold tracking-[0.18em] uppercase text-black/40">
-            All Jobs / {job?.title || "Loading..."}
-          </p>
-        </div>
-
         <div className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="rounded-[30px] border border-black/10 bg-white/85 p-8 shadow-[0_26px_70px_rgba(0,0,0,0.08)] backdrop-blur">
+          <div className="">
             {loading ? (
               <p className="text-[13px] text-black/50">Loading job details…</p>
             ) : error ? (
@@ -347,14 +346,18 @@ export default function JobApply() {
                       t.pillRing,
                     ].join(" ")}
                   >
-                    {job?.workModel === "Remote (Global)"
-                      ? "Remote"
-                      : "In-house"}
-                  </span>
-                  <span className="text-[12px] font-semibold text-slate-500">
                     {job?.workModel}
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-black/5 px-3 py-1 text-[11px] font-semibold text-black/60">
+                  <span className="text-[12px] font-semibold text-slate-500"></span>
+
+                  <span
+                    className={[
+                      "inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-[10px] font-semibold tracking-[0.22em] uppercase ring-1",
+                      t.pillBg,
+                      t.pillText,
+                      t.pillRing,
+                    ].join(" ")}
+                  >
                     {job?.department || "General"}
                   </span>
                 </div>
@@ -392,9 +395,9 @@ export default function JobApply() {
 
           <div className="rounded-[30px] border border-black/10 bg-white shadow-[0_26px_70px_rgba(0,0,0,0.10)] max-h-max">
             <div className="border-b border-black/5 px-8 py-6">
-              <p className="text-[12px] font-semibold tracking-[0.18em] uppercase text-black/40">
+              <h3 className="text-[30px] font-extrabold  text-black">
                 Apply Now
-              </p>
+              </h3>
               <p className="mt-1 text-[14px] font-semibold text-slate-800">
                 Please fill out the form below to be considered.
               </p>
@@ -586,7 +589,11 @@ export default function JobApply() {
             </form>
           </div>
         </div>
+
+                            {/* footer  */}
+    <Footer/>
       </div>
+
     </div>
   );
 }

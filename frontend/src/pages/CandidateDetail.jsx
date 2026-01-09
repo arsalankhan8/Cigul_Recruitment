@@ -3,10 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import Background from "../components/ui/Background";
 import { api } from "../lib/api";
 import { Mail, MapPin, FileText, Download } from "lucide-react";
-
+import Footer from "../components/footer";
 function Pill({ children, tone = "green" }) {
   const tones = {
-    green: "bg-emerald-50 text-emerald-700 border-emerald-100",
+    green: "bg-emerald-50 text-[#16a34a] border-emerald-100",
     gray: "bg-black/[0.03] text-black/55 border-black/10",
   };
   return (
@@ -59,10 +59,20 @@ function InfoStat({ label, value }) {
 export default function CandidateDetail() {
   const { jobId, appId } = useParams();
   const nav = useNavigate();
-  const [application, setApplication] = useState(null);
-  const [loading, setLoading] = useState(true);
+
   const btnBase =
     "w-full text-[12px] font-bold tracking-wide p-[15px] rounded-[12px] transition-colors";
+
+  const [application, setApplication] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
+
+  const a = application;
+
+  const resumeUrl = a?.resume?.path
+    ? new URL(a.resume.path, api.defaults.baseURL).toString()
+    : null;
+
   async function load() {
     setLoading(true);
     try {
@@ -73,7 +83,18 @@ export default function CandidateDetail() {
     }
   }
 
-  const [deleting, setDeleting] = useState(false);
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appId]);
+
+  async function setStatus(nextStatus) {
+    await api.patch(`/api/pipeline/applications/${appId}/status`, {
+      status: nextStatus,
+    });
+    await load();
+    nav(`/dashboard/pipeline/${jobId}`);
+  }
 
   async function deleteCandidate() {
     const ok = window.confirm(
@@ -91,27 +112,6 @@ export default function CandidateDetail() {
       setDeleting(false);
     }
   }
-
-  useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appId]);
-
-  async function setStatus(nextStatus) {
-    await api.patch(`/api/pipeline/applications/${appId}/status`, {
-      status: nextStatus,
-    });
-    await load();
-    nav(`/dashboard/pipeline/${jobId}`);
-  }
-
-  const a = application;
-  const status = a?.status; // ✅ moved here (after a exists)
-
-  const initials = useMemo(
-    () => (a?.fullName || "A").slice(0, 1).toUpperCase(),
-    [a]
-  );
 
   if (loading) {
     return (
@@ -133,11 +133,6 @@ export default function CandidateDetail() {
     );
   }
 
-  const resumeUrl = a.resume?.path
-    ? `http://localhost:5000${a.resume.path}`
-    : null;
-  const hasPortfolio = !!a.portfolioUrl;
-
   return (
     <Background>
       {/* light grid feel */}
@@ -147,7 +142,19 @@ export default function CandidateDetail() {
             onClick={() => nav(`/dashboard/pipeline/${jobId}`)}
             className="text-[12px] font-semibold tracking-[0.2em] uppercase text-black/60 hover:text-black/80"
           >
-            ← Back to Pipeline
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              className="text-black inline-block"
+            >
+              {" "}
+              <path
+                fill="currentColor"
+                d="M12 4l1.41 1.41L8.83 10H20v2H8.83l4.58 4.59L12 18l-8-8Z"
+              />{" "}
+            </svg>{" "}
+            Back to Pipeline
           </button>
 
           <div className="mt-8 flex flex-col gap-10 md:flex-row md:justify-between">
@@ -156,7 +163,7 @@ export default function CandidateDetail() {
 
               <div className="rounded-[28px] bg-white border border-black/[0.06] shadow-[0_12px_35px_-24px_rgba(0,0,0,0.35)]">
                 <div className="p-7">
-                  <div className="flex items-start gap-5">
+                  <div className="flex flex-col md:flex-row items-start gap-5">
                     {/* avatar */}
                     <div className="h-14 w-14 rounded-2xl bg-black/[0.04] flex items-center justify-center text-black/35 font-extrabold text-xl">
                       {(a.fullName || "A").slice(0, 1).toUpperCase()}
@@ -336,8 +343,13 @@ export default function CandidateDetail() {
               </button>
             </div>
           </div>
+
+                            {/* footer  */}
+    <Footer/>
         </div>
+        
       </div>
+      
     </Background>
   );
 }

@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Routes,
-  Route,
-  Navigate,
-  useNavigate,
-  Outlet,
-} from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate, Outlet } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
@@ -15,6 +9,7 @@ import Careers from "./pages/Careers"; // 👈 add this
 import JobApply from "./pages/JobApply";
 import PipelineJob from "./pages/PipelineJob";
 import CandidateDetail from "./pages/CandidateDetail";
+import About from "./pages/About";
 // Guard wrapper
 function ProtectedRoute() {
   const token = localStorage.getItem("token");
@@ -48,6 +43,7 @@ export default function App() {
       <Routes>
         {/* PUBLIC */}
         <Route path="/" element={<Careers />} />
+         <Route path="/about" element={<About />} />
         <Route path="/jobs/:jobId" element={<JobApply />} />
         <Route
           path="/login"
@@ -65,8 +61,14 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Navigate to="pipeline" replace />} />
             <Route path="/dashboard/pipeline" element={<Pipeline />} />
-<Route path="/dashboard/pipeline/:jobId" element={<PipelineJob />} />
-<Route path="/dashboard/pipeline/:jobId/candidate/:appId" element={<CandidateDetail />} />
+            <Route
+              path="/dashboard/pipeline/:jobId"
+              element={<PipelineJob />}
+            />
+            <Route
+              path="/dashboard/pipeline/:jobId/candidate/:appId"
+              element={<CandidateDetail />}
+            />
             <Route path="jobs" element={<JobsManager />} />
           </Route>
         </Route>

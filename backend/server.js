@@ -12,7 +12,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+  origin: "*", // dev only
+}));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
@@ -24,9 +26,15 @@ app.use("/api/pipeline", pipelineRoutes);
 async function start() {
   await connectDB();
 
-  app.listen(PORT, () => {
-    console.log(`✅ Server listening on port ${PORT}`);
-  });
+  // app.listen(PORT, () => {
+  //   console.log(`✅ Server listening on port ${PORT}`);
+  // });
+
+app.listen(5000, "0.0.0.0", () => {
+  console.log("Backend running");
+});
+
+
 }
 
 start().catch((err) => {

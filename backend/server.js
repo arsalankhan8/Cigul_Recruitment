@@ -98,13 +98,10 @@ app.use("/api", (req, res) => {
   res.status(404).json({ message: "API route not found" });
 });
 
-// Serve frontend build
-app.use(express.static(path.join(__dirname, "dist")));
 
-// SPA fallback
-app.get(/^(?!\/api|\/uploads).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
-});
+
+app.use(express.static(path.join(__dirname, "dist")));
+app.get(/.*/, (req, res) => { res.sendFile(path.join(__dirname, "dist", "index.html")); });
 
 async function start() {
   await connectDB();

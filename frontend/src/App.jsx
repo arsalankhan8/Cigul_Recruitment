@@ -10,6 +10,7 @@ import JobApply from "./pages/JobApply";
 import PipelineJob from "./pages/PipelineJob";
 import CandidateDetail from "./pages/CandidateDetail";
 import About from "./pages/About";
+import ScrollToTop from "./components/ScrollToTop";
 // Guard wrapper
 function ProtectedRoute() {
   const token = localStorage.getItem("token");
@@ -38,12 +39,13 @@ export default function App() {
 
   return (
     <>
+      <ScrollToTop />
       <Navbar onLogout={handleLogout} />
 
       <Routes>
         {/* PUBLIC */}
         <Route path="/" element={<Careers />} />
-         <Route path="/about" element={<About />} />
+        <Route path="/about" element={<About />} />
         <Route path="/jobs/:jobId" element={<JobApply />} />
         <Route
           path="/login"

@@ -5,12 +5,18 @@ const jobApplicationSchema = new mongoose.Schema(
     job: { type: mongoose.Schema.Types.ObjectId, ref: "Job", required: true },
 
     fullName: { type: String, required: true, trim: true, maxlength: 120 },
-    email: { type: String, required: true, trim: true, lowercase: true, maxlength: 160 },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+      maxlength: 160,
+    },
     portfolioUrl: { type: String, required: true, trim: true, maxlength: 500 },
 
     // from form
     country: { type: String, enum: ["Pakistan", "Bangladesh", "Others"] },
-liveInKarachi: { type: String, enum: ["Yes", "No"] },
+    liveInKarachi: { type: String, enum: ["Yes", "No"] },
     area: { type: String, trim: true, maxlength: 120 },
     expYears: { type: Number, min: 0, max: 60, required: true },
     pkrExpectation: { type: Number, min: 0, required: true },

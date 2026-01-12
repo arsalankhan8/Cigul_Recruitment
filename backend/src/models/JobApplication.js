@@ -9,7 +9,8 @@ const jobApplicationSchema = new mongoose.Schema(
     portfolioUrl: { type: String, required: true, trim: true, maxlength: 500 },
 
     // from form
-    liveInKarachi: { type: String, enum: ["Yes", "No"], required: true },
+    country: { type: String, enum: ["Pakistan", "Bangladesh", "Others"] },
+liveInKarachi: { type: String, enum: ["Yes", "No"] },
     area: { type: String, trim: true, maxlength: 120 },
     expYears: { type: Number, min: 0, max: 60, required: true },
     pkrExpectation: { type: Number, min: 0, required: true },

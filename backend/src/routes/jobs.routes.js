@@ -58,6 +58,7 @@ router.post("/", requireAuth, async (req, res) => {
  * LIST Jobs
  * GET /api/jobs?status=published&search=designer&page=1&limit=20
  */
+
 router.get("/", async (req, res) => {
   try {
     const { status, search, page = 1, limit = 20 } = req.query;
@@ -100,6 +101,7 @@ router.get("/", async (req, res) => {
  * APPLY to a job (public)
  * POST /api/jobs/:id/apply
  */
+
 router.post("/:id/apply", handleResume, async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -109,27 +111,34 @@ router.post("/:id/apply", handleResume, async (req, res) => {
         .json({ message: "Job not found or not accepting applications." });
     }
 
-    const requiredFields = [
-      "fullName",
-      "email",
-      "portfolioUrl",
-      "liveInKarachi",
-      "expYears",
-      "pkrExpectation",
-    ];
+    const isRemote = job.workModel === "Remote (Global)";
+
+    const baseRequired = ["fullName", "email", "portfolioUrl", "expYears", "pkrExpectation"];
+    const remoteRequired = ["country"];
+    const onsiteRequired = ["liveInKarachi"]; // (area optional)
+
+    const requiredFields = isRemote
+      ? [...baseRequired, ...remoteRequired]
+      : [...baseRequired, ...onsiteRequired];
+
     const missing = requiredFields.filter(
       (f) => !req.body[f] || `${req.body[f]}`.trim() === ""
     );
+
     if (missing.length) {
       return res.status(400).json({
         message: `Missing required fields: ${missing.join(", ")}`,
       });
     }
 
-    if (!["Yes", "No"].includes(req.body.liveInKarachi)) {
-      return res
-        .status(400)
-        .json({ message: "liveInKarachi must be Yes or No." });
+    if (isRemote) {
+      if (!["Pakistan", "Bangladesh", "Others"].includes(req.body.country)) {
+        return res.status(400).json({ message: "country must be Pakistan, Bangladesh, or Others." });
+      }
+    } else {
+      if (!["Yes", "No"].includes(req.body.liveInKarachi)) {
+        return res.status(400).json({ message: "liveInKarachi must be Yes or No." });
+      }
     }
 
     if (!req.file) {
@@ -139,9 +148,9 @@ router.post("/:id/apply", handleResume, async (req, res) => {
     const expYears = Number(req.body.expYears);
     const pkrExpectation = Number(req.body.pkrExpectation);
     if (Number.isNaN(expYears) || Number.isNaN(pkrExpectation)) {
-      return res
-        .status(400)
-        .json({ message: "Experience years and PKR expectation must be numbers." });
+      return res.status(400).json({
+        message: "Experience years and PKR expectation must be numbers.",
+      });
     }
 
     const application = await JobApplication.create({
@@ -149,10 +158,15 @@ router.post("/:id/apply", handleResume, async (req, res) => {
       fullName: req.body.fullName.trim(),
       email: req.body.email.trim().toLowerCase(),
       portfolioUrl: req.body.portfolioUrl.trim(),
-      liveInKarachi: req.body.liveInKarachi,
-      area: req.body.area?.trim() || "",
+
+      // ✅ store the right field based on job type
+      country: isRemote ? req.body.country : undefined,
+      liveInKarachi: !isRemote ? req.body.liveInKarachi : undefined,
+      area: !isRemote ? (req.body.area?.trim() || "") : "",
+
       expYears,
       pkrExpectation,
+
       resume: {
         originalName: req.file.originalname,
         fileName: req.file.filename,
@@ -166,9 +180,7 @@ router.post("/:id/apply", handleResume, async (req, res) => {
       },
     });
 
-    return res
-      .status(201)
-      .json({ message: "Application received.", application });
+    return res.status(201).json({ message: "Application received.", application });
   } catch (err) {
     if (err?.code === 11000) {
       return res.status(409).json({
@@ -176,9 +188,7 @@ router.post("/:id/apply", handleResume, async (req, res) => {
       });
     }
     console.error("Error applying to job:", err);
-    return res
-      .status(400)
-      .json({ message: err.message || "Failed to submit application." });
+    return res.status(400).json({ message: err.message || "Failed to submit application." });
   }
 });
 
@@ -186,6 +196,7 @@ router.post("/:id/apply", handleResume, async (req, res) => {
  * GET Single Job
  * GET /api/jobs/:id
  */
+
 router.get("/:id", async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -200,6 +211,7 @@ router.get("/:id", async (req, res) => {
  * UPDATE Job
  * PUT /api/jobs/:id
  */
+
 router.put("/:id", requireAuth, async (req, res) => {
   try {
     const updates = {
@@ -266,6 +278,7 @@ router.patch("/:id/publish", requireAuth, async (req, res) => {
  * ARCHIVE Job
  * PATCH /api/jobs/:id/archive
  */
+
 router.patch("/:id/archive", requireAuth, async (req, res) => {
   try {
     const job = await Job.findByIdAndUpdate(
@@ -285,6 +298,7 @@ router.patch("/:id/archive", requireAuth, async (req, res) => {
  * DELETE Job
  * DELETE /api/jobs/:id
  */
+
 router.delete("/:id", requireAuth, async (req, res) => {
   try {
     const job = await Job.findByIdAndDelete(req.params.id);

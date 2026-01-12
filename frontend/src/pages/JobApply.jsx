@@ -23,6 +23,7 @@ const defaultForm = {
   fullName: "",
   email: "",
   portfolioUrl: "",
+  country: "Pakistan",
   liveInKarachi: "Yes",
   area: "",
   expYears: "",
@@ -201,6 +202,7 @@ export default function JobApply() {
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const [fileKey, setFileKey] = useState(0);
+  const isRemote = useMemo(() => job?.workModel === "Remote (Global)", [job]);
 
   // NEW: stage controls the full-screen UI
   const [stage, setStage] = useState("form"); // "form" | "processing" | "success"
@@ -234,6 +236,22 @@ export default function JobApply() {
       alive = false;
     };
   }, [jobId]);
+
+  useEffect(() => {
+    setForm((p) => {
+      if (isRemote) {
+        return {
+          ...p,
+          liveInKarachi: "", // or "Yes" if you want default hidden value (not recommended)
+          area: "",
+        };
+      }
+      return {
+        ...p,
+        country: "Pakistan", // or "" if you want cleared
+      };
+    });
+  }, [isRemote]);
 
   const t = useMemo(() => {
     const isRemote = job?.workModel === "Remote (Global)";
@@ -273,8 +291,13 @@ export default function JobApply() {
       data.append("fullName", form.fullName);
       data.append("email", form.email);
       data.append("portfolioUrl", form.portfolioUrl);
-      data.append("liveInKarachi", form.liveInKarachi);
-      data.append("area", form.area);
+      if (isRemote) {
+        data.append("country", form.country);
+      } else {
+        data.append("liveInKarachi", form.liveInKarachi);
+        data.append("area", form.area);
+      }
+
       data.append("expYears", form.expYears);
       data.append("pkrExpectation", form.pkrExpectation);
       data.append("resume", form.resumeFile);
@@ -320,7 +343,12 @@ export default function JobApply() {
           className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-[15px] md:text-[12px] font-semibold text-black/70 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-[1px] hover:shadow-md"
           type="button"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" class="text-black">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            className="text-black"
+          >
             <path
               fill="currentColor"
               d="M12 4l1.41 1.41L8.83 10H20v2H8.83l4.58 4.59L12 18l-8-8Z"
@@ -404,6 +432,36 @@ export default function JobApply() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5 px-8 py-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
+                  Full Name *
+                  <input
+                    required
+                    name="fullName"
+                    value={form.fullName}
+                    onChange={(e) =>
+                      setForm((p) => ({ ...p, fullName: e.target.value }))
+                    }
+                    className="h-11 rounded-xl border border-black/10 px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
+                    placeholder="e.g. Ali Khan"
+                  />
+                </label>
+
+                <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
+                  Email *
+                  <input
+                    required
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={(e) =>
+                      setForm((p) => ({ ...p, email: e.target.value }))
+                    }
+                    className="h-11 rounded-xl border border-black/10 px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
+                    placeholder="ali@example.com"
+                  />
+                </label>
+              </div>
               {feedback ? (
                 <div
                   className={[
@@ -416,38 +474,6 @@ export default function JobApply() {
                   {feedback.text}
                 </div>
               ) : null}
-              <div className="grid gap-4 sm:grid-cols-2">
-                {" "}
-                <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
-                  {" "}
-                  Full Name *{" "}
-                  <input
-                    required
-                    name="fullName"
-                    value={form.fullName}
-                    onChange={(e) =>
-                      setForm((p) => ({ ...p, fullName: e.target.value }))
-                    }
-                    className="h-11 rounded-xl border border-black/10 px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
-                    placeholder="e.g. Ali Khan"
-                  />{" "}
-                </label>{" "}
-                <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
-                  {" "}
-                  Email *{" "}
-                  <input
-                    required
-                    type="email"
-                    name="email"
-                    value={form.email}
-                    onChange={(e) =>
-                      setForm((p) => ({ ...p, email: e.target.value }))
-                    }
-                    className="h-11 rounded-xl border border-black/10 px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
-                    placeholder="ali@example.com"
-                  />{" "}
-                </label>{" "}
-              </div>{" "}
               <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
                 {" "}
                 Portfolio / Best Work *{" "}
@@ -506,37 +532,61 @@ export default function JobApply() {
                   </div>{" "}
                 </label>{" "}
               </div>{" "}
-              <div className="grid gap-4 sm:grid-cols-2">
-                {" "}
-                <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
-                  {" "}
-                  Live in Karachi? *{" "}
-                  <select
-                    value={form.liveInKarachi}
-                    onChange={(e) =>
-                      setForm((p) => ({ ...p, liveInKarachi: e.target.value }))
-                    }
-                    className="h-11 rounded-xl border border-black/10 bg-white px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
-                  >
-                    {" "}
-                    <option value="Yes">Yes</option>{" "}
-                    <option value="No">No</option>{" "}
-                  </select>{" "}
-                </label>{" "}
-                <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
-                  {" "}
-                  Area{" "}
-                  <input
-                    name="area"
-                    value={form.area}
-                    onChange={(e) =>
-                      setForm((p) => ({ ...p, area: e.target.value }))
-                    }
-                    className="h-11 rounded-xl border border-black/10 px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
-                    placeholder="e.g. DHA Phase 6"
-                  />{" "}
-                </label>{" "}
-              </div>{" "}
+              {isRemote ? (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
+                    Country *
+                    <select
+                      value={form.country}
+                      onChange={(e) =>
+                        setForm((p) => ({ ...p, country: e.target.value }))
+                      }
+                      className="h-11 rounded-xl border border-black/10 bg-white px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
+                      required
+                    >
+                      <option value="Pakistan">Pakistan</option>
+                      <option value="Bangladesh">Bangladesh</option>
+                      <option value="Others">Others</option>
+                    </select>
+                  </label>
+
+                  {/* optional: keep 2-col layout clean */}
+                  <div className="hidden sm:block" />
+                </div>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
+                    Live in Karachi? *
+                    <select
+                      value={form.liveInKarachi}
+                      onChange={(e) =>
+                        setForm((p) => ({
+                          ...p,
+                          liveInKarachi: e.target.value,
+                        }))
+                      }
+                      className="h-11 rounded-xl border border-black/10 bg-white px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
+                      required
+                    >
+                      <option value="Yes">Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                  </label>
+
+                  <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">
+                    Area
+                    <input
+                      name="area"
+                      value={form.area}
+                      onChange={(e) =>
+                        setForm((p) => ({ ...p, area: e.target.value }))
+                      }
+                      className="h-11 rounded-xl border border-black/10 px-3 text-[13px] outline-none ring-1 ring-transparent transition focus:border-black/20 focus:ring-black/10"
+                      placeholder="e.g. DHA Phase 6"
+                    />
+                  </label>
+                </div>
+              )}
               <div className="grid gap-4 sm:grid-cols-2">
                 {" "}
                 <label className="flex flex-col gap-2 text-[12px] font-semibold text-slate-600">

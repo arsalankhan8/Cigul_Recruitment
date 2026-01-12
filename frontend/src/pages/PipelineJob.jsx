@@ -11,9 +11,10 @@ function Column({ title, count, children, onDrop, onDragOver }) {
         <div className="text-[11px] tracking-[0.22em] uppercase text-black/55 font-semibold">
           {title}
         </div>
-        <div className="w-6 h-6 rounded-full bg-orange-500 text-white text-[11px] flex items-center justify-center font-bold">
-          {count}
-        </div>
+<div className="min-w-[24px] h-6 px-2 rounded-full bg-orange-500 text-white text-[11px] flex items-center justify-center font-bold whitespace-nowrap">
+  {count}
+</div>
+
       </div>
 
       <div

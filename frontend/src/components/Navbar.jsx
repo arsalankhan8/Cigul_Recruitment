@@ -175,7 +175,7 @@ export default function Navbar({ onLogout }) {
                   Open Roles
                 </MobileLink>
 
-                <NavLink
+                {/* <NavLink
                   to="/about"
                   className={({ isActive }) =>
                     isActive
@@ -184,7 +184,7 @@ export default function Navbar({ onLogout }) {
                   }
                 >
                   About Cigul
-                </NavLink>
+                </NavLink> */}
 
                 {isAuthenticated && (
                   <>

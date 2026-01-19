@@ -344,12 +344,10 @@ export default function CandidateDetail() {
             </div>
           </div>
 
-                            {/* footer  */}
-    <Footer/>
+          {/* footer  */}
+          <Footer />
         </div>
-        
       </div>
-      
     </Background>
   );
 }

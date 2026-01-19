@@ -29,7 +29,7 @@ const jobSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// ✅ Helpful validation: max salary should be >= min salary
+//  Helpful validation: max salary should be >= min salary
 jobSchema.pre("validate", function () {
   if (
     this.salaryMinPKR != null &&

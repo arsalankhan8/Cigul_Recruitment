@@ -125,6 +125,7 @@ router.get("/jobs/:jobId", requireAuth, async (req, res) => {
  * CANDIDATE DETAIL
  * GET /api/pipeline/applications/:appId
  */
+
 router.get("/applications/:appId", requireAuth, async (req, res) => {
   try {
     const appId = new mongoose.Types.ObjectId(req.params.appId);

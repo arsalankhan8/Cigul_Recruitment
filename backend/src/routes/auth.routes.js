@@ -9,6 +9,7 @@ const router = Router();
  * POST /api/auth/login
  * body: { username, password }
  */
+
 router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body || {};
@@ -38,7 +39,5 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
-
 
 export default router;

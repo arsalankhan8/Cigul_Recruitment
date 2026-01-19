@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { api } from "../lib/api";
-
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -24,7 +23,6 @@ export default function Login() {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-
       navigate("/dashboard/pipeline");
     } catch (e) {
       setErr(e?.response?.data?.message || "Login failed");

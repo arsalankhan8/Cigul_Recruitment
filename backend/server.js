@@ -81,6 +81,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.get("/api/health", (req, res) => res.send("Cigul Recruitment API running "));
 
 // ✅ Auth route with stricter POST limiter (mount ONLY ONCE)
+
 app.use(
   "/api/auth",
   (req, res, next) => {

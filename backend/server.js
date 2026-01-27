@@ -17,7 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ✅ If behind nginx/render/vercel/etc (recommended in production)
-// app.set("trust proxy", 1);
+app.set("trust proxy", 1);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,6 +32,7 @@ app.use(
 // CORS
 const allowedOrigins = [
   "https://career.cigul.com",
+  "https://www.career.cigul.com",
   "http://localhost:5173",
   "http://localhost:3000",
 ];
@@ -98,14 +99,6 @@ app.use("/api/pipeline", pipelineRoutes);
 app.use("/api", (req, res) => {
   res.status(404).json({ message: "API route not found" });
 });
-
-
-app.use(express.static(path.join(__dirname, "dist")));
-app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
-});
-
-
 
 async function start() {
   await connectDB();
